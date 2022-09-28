@@ -4,15 +4,17 @@
   拿到物件後先透過 postid 檢查當前列表中有沒有相同的 postid，
 
     有的話比較他們的價格，
-      有變動就重新 post 一次並且發送 LINE Notify。
+      有變動就重新 post 一次並且發送 Telegram。
       沒有變動的話就直接換下一個物件。
 
-    沒有的話就透過 postid 拿到 detail 後貼到列表中，發送 LINE Notify。
+    沒有的話就透過 postid 拿到 detail 後貼到列表中，發送 Telegram。
   
 */ 
 
 const list_sheet_name = "list";
-const line_notify_token = "LINE_NOTIFY_TOKEN";
+const telegram_bot_token = "TELEGRAM_BOT_TOKEN";
+const target_chat_id = "CHAT_ID";
+
 const search_city = "新北市";
 const search_query = "?is_format_data=1&is_new_list=1&type=1&region=3&section=26,44,43,38&searchtype=1&kind=2&other=balcony_1&showMore=1&option=washer&multiNotice=not_cover,all_sex,boy&order=posttime&orderType=desc&rentprice=1,12500";
 
@@ -79,8 +81,8 @@ function get_formated_rent_info(search_sheet, rent_result) {
     let tmp_array = ["", rent_hyperlink, rent_price, "", "", "", rent_section_name+rent_street_name+" / "+rent_location, "", rent_area, rent_floor, "", "", rent_post_id];
     format_rent_array.push(tmp_array);
 
-    let line_message = `${rent_post_id}\n${rent_title}\n${rent_url}\n$ ${rent_price}\n${rent_section_name} ${rent_street_name}\n${rent_location}\n${rent_area}坪，${rent_floor}`;
-    send_to_line_notify(line_message, rent_cover);
+    let text_message = `${rent_post_id}\n${rent_title}\n${rent_url}\n$ ${rent_price}\n${rent_section_name} ${rent_street_name}\n${rent_location}\n${rent_area}坪，${rent_floor}`;
+    send_to_telegram_bot(text_message, rent_cover);
   }
   return format_rent_array;
 }
@@ -178,20 +180,20 @@ function main() {
   range.setValues(rent_info);
 }
 
-function send_to_line_notify(message, image_url) {
-  const line_notify_url = "https://notify-api.line.me/api/notify";
+function send_to_telegram_bot(message, image_url) {
+  const telegram_api_url = `https://api.telegram.org/bot${telegram_bot_token}/`;
 
   const header = {
-    "Authorization": `Bearer ${line_notify_token}`,
     'Content-Type': 'application/x-www-form-urlencoded'
   }
 
   const payload = {
-    "message": message,
-    "notificationDisabled": true,
-    "imageFullsize": image_url,
-    "imageThumbnail": image_url
-  }
+    "method": "sendPhoto",
+    "chat_id": target_chat_id,
+    "photo": image_url,
+    "caption": message,
+    "disable_notification": true
+  };
 
   const options = {
     "method": "post",
@@ -199,6 +201,6 @@ function send_to_line_notify(message, image_url) {
     "payload": payload,
     "muteHttpExceptions": true
   };
-  
-  UrlFetchApp.fetch(line_notify_url, options);
+
+  UrlFetchApp.fetch(telegram_api_url, options);
 }

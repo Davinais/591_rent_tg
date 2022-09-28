@@ -1,4 +1,7 @@
-# 超簡單一鍵推播 591 租屋資訊完全免 Coding－透過 Google Sheet 與 LINE Notify 
+# 超簡單一鍵推播 591 租屋資訊完全免 Coding－透過 Google Sheet 與 Telegram Bot
+
+改成 Telegram Bot 版本，
+除了搜尋條件以外，還需要手動填入 telegram bot 的 `token` 以及 `chat_id`
 
 ----
 
